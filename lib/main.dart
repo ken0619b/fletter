@@ -65,14 +65,14 @@ class _FletterState extends State<Fletter> {
       body: new Stack(children: [
         new Image.asset("assets/comp.png"),
         Container(
-          color: Color.fromRGBO(255, 255, 255, 0.05),
+          color: Color.fromRGBO(0, 0, 0, 0.05),
           // decoration: BoxDecoration(color: Colors.white),
           child: new Flex(
             direction: Axis.vertical,
             children: <Widget>[
               Expanded(
                 child: AspectRatio(
-                  aspectRatio: 3.0,
+                  aspectRatio: 2.0,
                   child: GestureDetector(
                     child: CustomPaint(
                       painter: PaintCanvas(lines, nowPoints, nowColor),
@@ -110,7 +110,7 @@ class PaintCanvas extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint p = new Paint()
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 12.0;
+      ..strokeWidth = 8.0;
     canvas.save();
     for (int i = 0; i < lines.length; i++) {
       LinePoints l = lines[i];
