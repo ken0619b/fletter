@@ -1,5 +1,6 @@
 import 'dart:io';
-
+import 'dart:math';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -69,6 +70,19 @@ class _FletterState extends State<Fletter> {
         _imageFile = image;
       });
       print('DEBUG: image:$image');
+
+      final String fileName = Random().nextInt(10000).toString() +'.png';
+      final metaData = StorageMetadata(contentType: "image/png");
+
+      final StorageReference storageRef =
+        FirebaseStorage.instance.ref().child(fileName);
+
+      final StorageUploadTask uploadTask = storageRef.putFile(
+      _imageFile,
+      metaData
+    );
+
+    print('upload was completed');
     }).catchError((onError) {
       print('DEBUG: error:$onError');
     });
