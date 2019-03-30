@@ -8,24 +8,22 @@ import 'package:screenshot/screenshot.dart';
 void main() {
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-  runApp(new App());
+  runApp(App());
 }
 
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'fletter',
-      home: new Fletter(),
+      home: Fletter(),
     );
   }
 }
 
 class Fletter extends StatefulWidget {
-  Fletter({Key key}) : super(key: key);
-
   @override
-  _FletterState createState() => new _FletterState();
+  _FletterState createState() => _FletterState();
 }
 
 class _FletterState extends State<Fletter> {
@@ -33,26 +31,24 @@ class _FletterState extends State<Fletter> {
   List<Offset> nowPoints = <Offset>[];
   ScreenshotController screenshotController = ScreenshotController();
   Color nowColor = Colors.greenAccent;
-  var uuid = new Uuid();
+  var uuid = Uuid();
 
-  final metaData = StorageMetadata(contentType: "image/png");
+  final metaData = StorageMetadata(contentType: 'image/png');
 
   void moveGestureDetector(DragUpdateDetails detail) {
-    Offset p = Offset(detail.globalPosition.dx, detail.globalPosition.dy);
+    final Offset p = Offset(detail.globalPosition.dx, detail.globalPosition.dy);
     setState(() {
       nowPoints.add(p);
     });
   }
 
   void newGestureDetector(DragStartDetails detail) {
-    if (nowPoints.length != 0) {
-      LinePoints l = LinePoints(new List<Offset>.from(nowPoints), nowColor);
-      lines.add(l);
+    if (nowPoints.isNotEmpty) {
+      lines.add(LinePoints(List<Offset>.from(nowPoints), nowColor));
       nowPoints.clear();
     }
-    Offset p = Offset(detail.globalPosition.dx, detail.globalPosition.dy);
     setState(() {
-      nowPoints.add(p);
+      nowPoints.add(Offset(detail.globalPosition.dx, detail.globalPosition.dy));
     });
   }
 
@@ -65,25 +61,25 @@ class _FletterState extends State<Fletter> {
 
   void _takeScreenShot() {
     screenshotController.capture().then((File image) {
-      String fileName = uuid.v1() + '.png';
+      final String fileName = Uuid().v1() + '.png';
       final StorageReference storageRef = FirebaseStorage.instance.ref().child(fileName);
 
       storageRef.putFile(image, metaData);
-    }).catchError((onError) {
-      print('DEBUG: error:$onError');
+    }).catchError((error) {
+      print('DEBUG: $error');
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      body: new Screenshot(
+    return Scaffold(
+      body: Screenshot<File>(
         controller: screenshotController,
-        child: new Stack(children: [
-          new Image.asset("assets/comp.png"),
+        child: Stack(children: [
+          Image.asset('assets/comp.png'),
           Container(
             color: Color.fromRGBO(0, 0, 0, 0),
-            child: new Container(
+            child: Container(
               child: AspectRatio(
                 aspectRatio: 2.0,
                 child: GestureDetector(
@@ -100,7 +96,6 @@ class _FletterState extends State<Fletter> {
           ),
         ], fit: StackFit.expand),
       ),
-      //buttons
       floatingActionButton: Column(
         verticalDirection: VerticalDirection.up,
         children: <Widget>[
@@ -126,42 +121,41 @@ class _FletterState extends State<Fletter> {
 }
 
 class PaintCanvas extends CustomPainter {
+  PaintCanvas(this.lines, this.nowPoints, this.nowColor);
+
   final List<LinePoints> lines;
   final List<Offset> nowPoints;
   final Color nowColor;
 
-  PaintCanvas(this.lines, this.nowPoints, this.nowColor);
-
   @override
   void paint(Canvas canvas, Size size) {
-    Paint p = new Paint()
+    final Paint p = Paint()
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 8.0;
     canvas.save();
     for (int i = 0; i < lines.length; i++) {
-      LinePoints l = lines[i];
+      final LinePoints l = lines[i];
       for (int j = 1; j < l.points.length; j++) {
-        Offset p1 = l.points[j - 1], p2 = l.points[j];
+        final Offset p1 = l.points[j - 1], p2 = l.points[j];
         p.color = l.lineColor;
         canvas.drawLine(p1, p2, p);
       }
     }
     for (int i = 1; i < nowPoints.length; i++) {
-      Offset p1 = nowPoints[i - 1];
-      Offset p2 = nowPoints[i];
+      final Offset p1 = nowPoints[i - 1], p2 = nowPoints[i];
       p.color = nowColor;
       canvas.drawLine(p1, p2, p);
     }
     canvas.restore();
   }
-
+  @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
   }
 }
 
 class LinePoints {
+  LinePoints(this.points, this.lineColor);
   final List<Offset> points;
   final Color lineColor;
-  LinePoints(this.points, this.lineColor);
 }
