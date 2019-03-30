@@ -1,8 +1,7 @@
 import 'dart:io';
-import 'dart:math';
+import 'package:uuid/uuid.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -17,8 +16,6 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'fletter',
-      theme: new ThemeData(
-          primarySwatch: Colors.blue, brightness: Brightness.dark),
       home: new Fletter(),
     );
   }
@@ -35,8 +32,10 @@ class _FletterState extends State<Fletter> {
   List<LinePoints> lines = <LinePoints>[];
   List<Offset> nowPoints = <Offset>[];
   ScreenshotController screenshotController = ScreenshotController();
-  File _imageFile;
-  Color nowColor = Colors.blueGrey;
+  Color nowColor = Colors.greenAccent;
+  var uuid = new Uuid();
+
+  final metaData = StorageMetadata(contentType: "image/png");
 
   void moveGestureDetector(DragUpdateDetails detail) {
     Offset p = Offset(detail.globalPosition.dx, detail.globalPosition.dy);
@@ -66,23 +65,10 @@ class _FletterState extends State<Fletter> {
 
   void _takeScreenShot() {
     screenshotController.capture().then((File image) {
-      setState(() {
-        _imageFile = image;
-      });
-      print('DEBUG: image:$image');
+      String fileName = uuid.v1() + '.png';
+      final StorageReference storageRef = FirebaseStorage.instance.ref().child(fileName);
 
-      final String fileName = Random().nextInt(10000).toString() +'.png';
-      final metaData = StorageMetadata(contentType: "image/png");
-
-      final StorageReference storageRef =
-        FirebaseStorage.instance.ref().child(fileName);
-
-      final StorageUploadTask uploadTask = storageRef.putFile(
-      _imageFile,
-      metaData
-    );
-
-    print('upload was completed');
+      storageRef.putFile(image, metaData);
     }).catchError((onError) {
       print('DEBUG: error:$onError');
     });
@@ -90,55 +76,50 @@ class _FletterState extends State<Fletter> {
 
   @override
   Widget build(BuildContext context) {
-    return new Screenshot(
-      controller: screenshotController,
-      child: Scaffold(
-        body: new Stack(children: [
+    return new Scaffold(
+      body: new Screenshot(
+        controller: screenshotController,
+        child: new Stack(children: [
           new Image.asset("assets/comp.png"),
           Container(
-            color: Color.fromRGBO(0, 0, 0, 0.05),
-            child: new Flex(
-              direction: Axis.vertical,
-              children: <Widget>[
-                Expanded(
-                  child: AspectRatio(
-                    aspectRatio: 2.0,
-                    child: GestureDetector(
-                      child: CustomPaint(
-                        painter: PaintCanvas(lines, nowPoints, nowColor),
-                      ),
-                      onHorizontalDragUpdate: moveGestureDetector,
-                      onVerticalDragUpdate: moveGestureDetector,
-                      onHorizontalDragStart: newGestureDetector,
-                      onVerticalDragStart: newGestureDetector,
-                    ),
+            color: Color.fromRGBO(0, 0, 0, 0),
+            child: new Container(
+              child: AspectRatio(
+                aspectRatio: 2.0,
+                child: GestureDetector(
+                  child: CustomPaint(
+                    painter: PaintCanvas(lines, nowPoints, nowColor),
                   ),
-                )
-              ],
+                  onHorizontalDragUpdate: moveGestureDetector,
+                  onVerticalDragUpdate: moveGestureDetector,
+                  onHorizontalDragStart: newGestureDetector,
+                  onVerticalDragStart: newGestureDetector,
+                ),
+              ),
             ),
           ),
         ], fit: StackFit.expand),
-        //buttons
-        floatingActionButton: Column(
-          verticalDirection: VerticalDirection.up,
-          children: <Widget>[
-            FloatingActionButton(
-              onPressed: _tapClear,
+      ),
+      //buttons
+      floatingActionButton: Column(
+        verticalDirection: VerticalDirection.up,
+        children: <Widget>[
+          FloatingActionButton(
+            onPressed: _tapClear,
+            backgroundColor: Colors.redAccent,
+            foregroundColor: Colors.white,
+            child: Icon(Icons.delete),
+          ),
+          Container(
+            margin: EdgeInsets.only(bottom: 16.0),
+            child: FloatingActionButton(
+              onPressed: _takeScreenShot,
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
-              child: Icon(Icons.delete),
+              child: Icon(Icons.file_upload),
             ),
-            Container(
-              margin: EdgeInsets.only(bottom: 16.0),
-              child: FloatingActionButton(
-                onPressed: _takeScreenShot,
-                backgroundColor: Colors.redAccent,
-                foregroundColor: Colors.white,
-                child: Icon(Icons.file_upload),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

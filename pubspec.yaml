@@ -20,6 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   screenshot: ^0.0.2
+  uuid: 2.0.0
   firebase_core: ^0.3.0  # add dependency for Firebase Core
   cloud_firestore: ^0.9.5
   firebase_storage:
