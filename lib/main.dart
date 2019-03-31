@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:flutter/cupertino.dart';
 
 void main() {
   SystemChrome.setPreferredOrientations(
@@ -62,20 +63,20 @@ class _FletterState extends State<Fletter> {
       final String fileName = Uuid().v1() + '.png';
       final StorageReference storageRef =
           FirebaseStorage.instance.ref().child(fileName);
-
       storageRef.putFile(image, metaData);
     }).catchError((error) {
       print('DEBUG: $error');
     });
-    _showDialog(
-        context, 'Upload was succeeded! Check Other works via http://aaa.com');
+    _showDialog(context, '''
+Upload Completed!
+''');
     _tapClear();
   }
 
   void _showDialog(BuildContext context, String msg) {
-    showDialog(
+    showDialog<CupertinoAlertDialog>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => CupertinoAlertDialog(
               content: Text(msg),
             ));
   }
@@ -86,7 +87,7 @@ class _FletterState extends State<Fletter> {
       body: Screenshot<File>(
         controller: screenshotController,
         child: Stack(children: [
-          Image.asset('assets/comp.png'),
+          Image.asset('assets/bg.png'),
           Container(
             color: Color.fromRGBO(0, 0, 0, 0),
             child: Container(
@@ -127,8 +128,10 @@ class _FletterState extends State<Fletter> {
           Container(
             margin: EdgeInsets.only(bottom: 16.0),
             child: FloatingActionButton(
-              onPressed: () => _showDialog(
-                  context, "Hi There! Let's Make Your Own Logo of Flutter"),
+              onPressed: () => _showDialog(context, '''
+Hi!
+Let's Make Your Own Logo
+'''),
               backgroundColor: Colors.blueGrey,
               foregroundColor: Colors.white,
               child: Icon(Icons.help),
@@ -170,8 +173,8 @@ class PaintCanvas extends CustomPainter {
         final Offset p1 = nowPoints[i - 1], p2 = nowPoints[i];
         canvas.drawLine(p1, p2, p);
       }
-      canvas.restore();
     });
+    canvas.restore();
   }
 
   @override
