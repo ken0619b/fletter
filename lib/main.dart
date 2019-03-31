@@ -64,16 +64,16 @@ class _FletterState extends State<Fletter> {
           FirebaseStorage.instance.ref().child(fileName);
 
       storageRef.putFile(image, metaData);
-    }).catchError((error) {
+    }).catchError((Error error) {
       print('DEBUG: $error');
     });
     _showDialog(
-        context, 'Upload was succeeded! Check Other works via http://aaa.com');
+        context, 'Upload was succeeded! Check My Github');
     _tapClear();
   }
 
   void _showDialog(BuildContext context, String msg) {
-    showDialog(
+    showDialog<AlertDialog>(
         context: context,
         builder: (context) => AlertDialog(
               content: Text(msg),
@@ -86,7 +86,7 @@ class _FletterState extends State<Fletter> {
       body: Screenshot<File>(
         controller: screenshotController,
         child: Stack(children: [
-          Image.asset('assets/comp.png'),
+          Image.asset('assets/bg.png'),
           Container(
             color: Color.fromRGBO(0, 0, 0, 0),
             child: Container(
