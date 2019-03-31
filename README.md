@@ -1,16 +1,21 @@
-# fletter
+# fletter -- Flutter + letter
 
-A new Flutter project.
+"Make Your Own Logo For Flutter."
 
-## Getting Started
+It is the App for #FlutterCreate
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+Users will be able to show their originality with
 
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
+## Dart code size: xxx Bytes
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.io/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+This app was created for Flutter Create, which limits Dart code size to 5KB.
+Confirmed with below command.
+```
+kenmbp:~/fletter (master *+=) $ find ./lib -name "*.dart" | xargs cat | wc -c
+    5072
+```
+
+
+Link:
+https://flutter.dev/create
