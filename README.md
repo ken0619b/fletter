@@ -24,6 +24,8 @@ kenmbp:~/fletter (master *+=) $ find ./lib -name "*.dart" | xargs cat | wc -c
 - You can upload 'Your Best Logo' with `Upload` button.
 - 'Erase' button works well in case of you want to reset.
 
+![dmeo](https://github.com/ken840619/fletter/blob/master/screenshots/fletter2.gif)
+
 
 
 Link:
