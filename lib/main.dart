@@ -30,9 +30,7 @@ class _FletterState extends State<Fletter> {
   List<LinePoints> lines = <LinePoints>[];
   List<Offset> nowPoints = <Offset>[];
   ScreenshotController screenshotController = ScreenshotController();
-  Color nowColor = Colors.greenAccent;
   var uuid = Uuid();
-
   final metaData = StorageMetadata(contentType: 'image/png');
 
   void moveGestureDetector(DragUpdateDetails detail) {
@@ -44,7 +42,7 @@ class _FletterState extends State<Fletter> {
 
   void newGestureDetector(DragStartDetails detail) {
     if (nowPoints.isNotEmpty) {
-      lines.add(LinePoints(List<Offset>.from(nowPoints), nowColor));
+      lines.add(LinePoints(List<Offset>.from(nowPoints)));
       nowPoints.clear();
     }
     setState(() {
@@ -62,12 +60,24 @@ class _FletterState extends State<Fletter> {
   void _takeScreenShot() {
     screenshotController.capture().then((File image) {
       final String fileName = Uuid().v1() + '.png';
-      final StorageReference storageRef = FirebaseStorage.instance.ref().child(fileName);
+      final StorageReference storageRef =
+          FirebaseStorage.instance.ref().child(fileName);
 
       storageRef.putFile(image, metaData);
     }).catchError((error) {
       print('DEBUG: $error');
     });
+    _showDialog(
+        context, 'Upload was succeeded! Check Other works via http://aaa.com');
+    _tapClear();
+  }
+
+  void _showDialog(BuildContext context, String msg) {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              content: Text(msg),
+            ));
   }
 
   @override
@@ -84,7 +94,7 @@ class _FletterState extends State<Fletter> {
                 aspectRatio: 2.0,
                 child: GestureDetector(
                   child: CustomPaint(
-                    painter: PaintCanvas(lines, nowPoints, nowColor),
+                    painter: PaintCanvas(lines, nowPoints),
                   ),
                   onHorizontalDragUpdate: moveGestureDetector,
                   onVerticalDragUpdate: moveGestureDetector,
@@ -114,48 +124,58 @@ class _FletterState extends State<Fletter> {
               child: Icon(Icons.file_upload),
             ),
           ),
+          Container(
+            margin: EdgeInsets.only(bottom: 16.0),
+            child: FloatingActionButton(
+              onPressed: () => _showDialog(
+                  context, "Hi There! Let's Make Your Own Logo of Flutter"),
+              backgroundColor: Colors.blueGrey,
+              foregroundColor: Colors.white,
+              child: Icon(Icons.help),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class PaintCanvas extends CustomPainter {
-  PaintCanvas(this.lines, this.nowPoints, this.nowColor);
+class LinePoints {
+  LinePoints(this.points);
+  final List<Offset> points;
+}
 
+class PaintCanvas extends CustomPainter {
+  PaintCanvas(this.lines, this.nowPoints);
   final List<LinePoints> lines;
   final List<Offset> nowPoints;
-  final Color nowColor;
 
   @override
   void paint(Canvas canvas, Size size) {
     final Paint p = Paint()
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 8.0;
+      ..strokeWidth = 8.0
+      ..color = Colors.blueGrey;
     canvas.save();
-    for (int i = 0; i < lines.length; i++) {
-      final LinePoints l = lines[i];
-      for (int j = 1; j < l.points.length; j++) {
-        final Offset p1 = l.points[j - 1], p2 = l.points[j];
-        p.color = l.lineColor;
+
+    lines.forEach((LinePoints lp) {
+      for (int j = 1; j < lp.points.length; j++) {
+        final Offset p1 = lp.points[j - 1], p2 = lp.points[j];
         canvas.drawLine(p1, p2, p);
       }
-    }
-    for (int i = 1; i < nowPoints.length; i++) {
-      final Offset p1 = nowPoints[i - 1], p2 = nowPoints[i];
-      p.color = nowColor;
-      canvas.drawLine(p1, p2, p);
-    }
-    canvas.restore();
+    });
+
+    nowPoints.forEach((np) {
+      for (int i = 1; i < nowPoints.length; i++) {
+        final Offset p1 = nowPoints[i - 1], p2 = nowPoints[i];
+        canvas.drawLine(p1, p2, p);
+      }
+      canvas.restore();
+    });
   }
+
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
   }
-}
-
-class LinePoints {
-  LinePoints(this.points, this.lineColor);
-  final List<Offset> points;
-  final Color lineColor;
 }
