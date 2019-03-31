@@ -28,7 +28,7 @@ kenmbp:~/fletter (master *+=) $ find ./lib -name "*.dart" | xargs cat | wc -c
 
 
 
-Links/Refs:
-https://qiita.com/takenobi/items/c2342cd94abf9e020220
+Links/Refs:   
+https://qiita.com/takenobi/items/c2342cd94abf9e020220   
 https://flutter.dev/create
 
